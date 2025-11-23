@@ -32,12 +32,7 @@ jobs:
         run: mkdir -p model
 
       - name: Run Training Script
-        run: |
-          if [ -f "data/dataset.csv" ]; then
-              python train.py
-          else
-              echo "⚠️ Dataset not found. Skipping training."
-          fi
+        run: python train.py
 
       - name: Commit Model Artifact
         env:
