@@ -52,10 +52,10 @@ def upload_and_trigger_retrain(file_obj):
         # Check if file exists to decide 'create' or 'update'
         try:
             contents = repo.get_contents(file_path)
-            repo.update_file(file_path, "Update data via HF Admin Panel", new_content, contents.sha)
+            repo.update_file(file_path, "Update data via HF Upload CSV Panel", new_content, contents.sha)
             action = "Updated"
         except:
-            repo.create_file(file_path, "Create data via HF Admin Panel", new_content)
+            repo.create_file(file_path, "Create data via HF Upload CSV Panel", new_content)
             action = "Created"
             
         return f"✅ Success! {action} 'data/dataset.csv' on GitHub. \n🚀 Training Pipeline triggered!"
@@ -82,7 +82,7 @@ with gr.Blocks(title="Annual Medical Cost Prediction") as app:
         out = gr.Textbox(label="Annual Medical Cost Prediction")
         btn.click(predict_cost, [age, bmi, risk_score, chronic_count, provider_quality], out)
 
-    with gr.Tab("⚙️ Admin Control"):
+    with gr.Tab("📂 Upload New Data to Retrain Model"):
         gr.Markdown("### 📂 Upload New Data to Retrain Model")
         gr.Markdown("*Uploading here will push to GitHub and start the training workflow.*")
         
