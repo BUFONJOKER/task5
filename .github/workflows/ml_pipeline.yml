@@ -1,0 +1,68 @@
+name: Train & Sync Model on Every Push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  train-and-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ensure model directory
+        run: mkdir -p model
+
+      - name: Run Training Script
+        run: |
+          if [ -f "data/dataset.csv" ]; then
+              python train.py
+          else
+              echo "⚠️ Dataset not found. Skipping training."
+          fi
+
+      - name: Commit Model Artifact
+        env:
+          GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+          GIT_NAME: ${{ secrets.GIT_NAME }}
+         
+        run: |
+          git config --global user.email "$GIT_EMAIL"
+          git config --global user.name "$GIT_NAME"
+          git config pull.rebase true  # Set rebase strategy
+          git lfs install
+          git add model/model_scaler_mae.pkl || echo "No new model to add"
+
+          if git diff --staged --quiet; then
+              echo "No model changes detected."
+          else
+              git commit -m "🤖 Auto-train: Updated model [skip ci]"
+              git push origin main
+          fi
+
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+          GIT_NAME: ${{ secrets.GIT_NAME }}
+        run: |
+          git config --global user.email "$GIT_EMAIL"
+          git config --global user.name "$GIT_NAME"
+          git push --force https://BUFON-JOKER:$HF_TOKEN@huggingface.co/spaces/BUFON-JOKER/task5 main
