@@ -3,6 +3,8 @@ name: Train & Sync Model on Every Push
 on:
   push:
     branches: [main]
+  paths:
+    - 'data/dataset.csv'
 
 permissions:
   contents: write
@@ -53,7 +55,7 @@ jobs:
           if git diff --staged --quiet; then
               echo "No model changes detected."
           else
-              git commit -m "🤖 Auto-train: Updated model [skip ci]"
+              git commit -m "🤖 Auto-train: Updated model"
               git push origin main
           fi
 
