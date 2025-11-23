@@ -3,8 +3,7 @@ name: Train & Sync Model on Every Push
 on:
   push:
     branches: [main]
-  paths:
-    - 'data/dataset.csv'
+  
 
 permissions:
   contents: write
